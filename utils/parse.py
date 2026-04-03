@@ -4,6 +4,25 @@ from .models import ReceiptItem
 BARCODE_LENGTH = 12
 
 
+def parse_price_tax(price_tax: str) -> tuple[float | None, str | None]:
+    price_str = price_tax
+    if price_tax[-1] in "0DEH":
+        tax_type = price_tax[-1]
+        for old, new in (("0", "D"),):
+            tax_type = tax_type.replace(old, new)
+        price_str = price_tax[:-1]
+    else:
+        tax_type = None
+
+    for old, new in (("S", ""), ("$", ""), (",", ".")):
+        price_str = price_str.replace(old, new)
+    try:
+        price = float(price_str)
+    except ValueError:
+        price = None
+    return price, tax_type
+
+
 def line_to_receipt_item(texts: list[str]) -> ReceiptItem:
     """
     ['AMBROSIA BAG 627735269640', 'S6.97', 'D']
@@ -15,7 +34,7 @@ def line_to_receipt_item(texts: list[str]) -> ReceiptItem:
     print(texts)
     name_list = []
     price_tax_list = []
-    barcode = price = tax_type = None
+    barcode = None
 
     for text in texts:
         for word in text.split():
@@ -33,21 +52,8 @@ def line_to_receipt_item(texts: list[str]) -> ReceiptItem:
                 # Process as price and tax_type
                 price_tax_list.append(word)
 
-    price_tax = "".join(price_tax_list)
-
-    price_str = price_tax
-    if price_tax[-1] in "0DEH":
-        tax_type = price_tax[-1]
-        for old, new in (("0", "D"),):
-            tax_type = tax_type.replace(old, new)
-        price_str = price_tax[:-1]
-
-    for old, new in (("S", ""), ("$", ""), (",", ".")):
-        price_str = price_str.replace(old, new)
-    try:
-        price = float(price_str)
-    except ValueError:
-        price = None
+    price_tax_str = "".join(price_tax_list)
+    price, tax_type = parse_price_tax(price_tax_str)
 
     result = ReceiptItem(
         name=" ".join(name_list),
