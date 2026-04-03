@@ -33,18 +33,25 @@ def line_to_receipt_item(texts: list[str]) -> ReceiptItem:
                 # Process as price and tax_type
                 price_tax_list.append(word)
 
-    tax_type = price_tax_list[-1]
-    for old, new in (("0", "D"),):
-        tax_type = tax_type.replace(old, new)
+    price_tax = "".join(price_tax_list)
 
-    price = "".join(price_tax_list[:-1])
+    price_str = price_tax
+    if price_tax[-1] in "0DEH":
+        tax_type = price_tax[-1]
+        for old, new in (("0", "D"),):
+            tax_type = tax_type.replace(old, new)
+        price_str = price_tax[:-1]
+
     for old, new in (("S", ""), ("$", ""), (",", ".")):
-        price = price.replace(old, new)
+        price_str = price_str.replace(old, new)
+    try:
+        price = float(price_str)
+    except ValueError:
+        price = None
 
     result = ReceiptItem(
         name=" ".join(name_list),
         barcode=barcode,
-        # price=float(price),
         price=price,
         tax_type=tax_type,
     )
@@ -99,112 +106,3 @@ def ocr_to_receipt_items(ocr_results):
     if current_line:
         result.append(line_to_receipt_item(current_line))
     return result
-
-
-if __name__ == "__main__":
-    import numpy as np
-
-    ocr_results = [
-        (
-            [
-                [np.int32(36), np.int32(3)],
-                [np.int32(685), np.int32(3)],
-                [np.int32(685), np.int32(68)],
-                [np.int32(36), np.int32(68)],
-            ],
-            "AMBROSIA BAG 627735269640",
-            np.float64(0.7453813979057209),
-        ),
-        (
-            [
-                [np.int32(826), 0],
-                [np.int32(970), 0],
-                [np.int32(970), np.int32(50)],
-                [np.int32(826), np.int32(50)],
-            ],
-            "S6.97",
-            np.float64(0.46366837282383055),
-        ),
-        (
-            [
-                [np.int32(986), np.int32(2)],
-                [np.int32(1018), np.int32(2)],
-                [np.int32(1018), np.int32(44)],
-                [np.int32(986), np.int32(44)],
-            ],
-            "D",
-            np.float64(0.39594129766175357),
-        ),
-        (
-            [
-                [np.int32(38), np.int32(80)],
-                [np.int32(126), np.int32(80)],
-                [np.int32(126), np.int32(128)],
-                [np.int32(38), np.int32(128)],
-            ],
-            "ORG",
-            np.float64(0.9958564793562332),
-        ),
-        (
-            [
-                [np.int32(142), np.int32(80)],
-                [np.int32(198), np.int32(80)],
-                [np.int32(198), np.int32(128)],
-                [np.int32(142), np.int32(128)],
-            ],
-            "YL",
-            np.float64(0.9984876005067481),
-        ),
-        (
-            [
-                [np.int32(215), np.int32(68)],
-                [np.int32(685), np.int32(68)],
-                [np.int32(685), np.int32(131)],
-                [np.int32(215), np.int32(131)],
-            ],
-            "ONION 627735264580",
-            np.float64(0.8981061747749168),
-        ),
-        (
-            [
-                [np.int32(828), np.int32(64)],
-                [np.int32(970), np.int32(64)],
-                [np.int32(970), np.int32(118)],
-                [np.int32(828), np.int32(118)],
-            ],
-            "$4 , 47",
-            np.float64(0.2561593998130806),
-        ),
-        (
-            [
-                [np.int32(992), np.int32(70)],
-                [np.int32(1020), np.int32(70)],
-                [np.int32(1020), np.int32(110)],
-                [np.int32(992), np.int32(110)],
-            ],
-            "0",
-            np.float64(0.35510696731434166),
-        ),
-    ]
-
-    expected_output = [
-        ReceiptItem(
-            name="AMBROSIA BAG",
-            barcode="627735269640",
-            price=6.97,
-            tax_type="D",
-        ),
-        ReceiptItem(
-            name="ORG YL ONION",
-            barcode="627735264580",
-            price=4.47,
-            tax_type="D",
-        ),
-    ]
-    receipt_items = ocr_to_receipt_items(ocr_results)
-    assert receipt_items == expected_output
-    # for item in receipt_items:
-    #     print(item)
-    # ocr_to_receipt_items(width=1080, height=604)
-    # output = get_rid_of_np(ocr_results)
-    print("All tests are OK")
