@@ -73,7 +73,6 @@ def line_to_receipt_item(texts: list[str]) -> ReceiptItem:
     ['KR', 'CHK', 'RIB', '068100078580', '52,78 D']
     ['QKR BG', '2,25k 055577101680', '$6,97']
     """
-    print(texts)
     name_list = []
     price_tax_list = []
     barcode = None
