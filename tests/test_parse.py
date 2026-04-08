@@ -14,6 +14,7 @@ class TestParse:
             ("$4,47", (4.47, None)),
             ("S4,40", (4.40, None)),
         ],
+        ids=lambda val: str(val),
     )
     def test_parse_price_tax(self, input_str, result):
         assert parse.parse_price_tax(input_str) == result
