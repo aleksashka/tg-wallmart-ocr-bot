@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 
 from utils.models import ReceiptItem
@@ -5,10 +6,16 @@ from utils import parse
 
 
 class TestParse:
-    def test_parse_price_tax(self):
-        assert parse.parse_price_tax("S6.97D") == (6.97, "D")
-        assert parse.parse_price_tax("$4,470") == (4.47, "D")
-        assert parse.parse_price_tax("$4,47") == (4.47, None)
+    @pytest.mark.parametrize(
+        "input_str, result",
+        [
+            ("S6.97D", (6.97, "D")),
+            ("$4,470", (4.47, "D")),
+            ("$4,47", (4.47, None)),
+        ],
+    )
+    def test_parse_price_tax(self, input_str, result):
+        assert parse.parse_price_tax(input_str) == result
 
     def test_ocr_to_receipt_items_simple(self):
         ocr_results = [
