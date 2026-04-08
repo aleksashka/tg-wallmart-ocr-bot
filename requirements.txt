@@ -1,4 +1,6 @@
 # Python 3.10.12
+#pip install torch==2.11.0+cpu --index-url https://download.pytorch.org/whl/cpu
+#pip install torchvision==0.26.0+cpu --index-url https://download.pytorch.org/whl/cpu
 
 aiofiles==25.1.0
 aiogram==3.26.0
@@ -38,8 +40,6 @@ scikit-image==0.25.2
 scipy==1.15.3
 sympy==1.14.0
 tifffile==2025.5.10
-torch==2.11.0+cpu
-torchvision==0.26.0+cpu
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.3
