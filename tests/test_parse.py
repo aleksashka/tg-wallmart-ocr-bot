@@ -12,6 +12,7 @@ class TestParse:
             ("S6.97D", (6.97, "D")),
             ("$4,470", (4.47, "D")),
             ("$4,47", (4.47, None)),
+            ("S4,40", (4.40, None)),
         ],
     )
     def test_parse_price_tax(self, input_str, result):

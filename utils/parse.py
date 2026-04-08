@@ -30,16 +30,17 @@ def parse_price_tax(price_tax: str) -> tuple[float | None, str | None]:
                 None if absent
     """
     price_str = price_tax
-    if price_tax[-1] in "0DEH":
-        tax_type = price_tax[-1]
-        for old, new in (("0", "D"),):
-            tax_type = tax_type.replace(old, new)
-        price_str = price_tax[:-1]
-    else:
-        tax_type = None
-
+    tax_type = None
     for old, new in (("S", ""), ("$", ""), (",", ".")):
         price_str = price_str.replace(old, new)
+
+    if len(price_str.split(".")[-1]) > 2:
+        if price_str[-1] in "0DEH":
+            tax_type = price_str[-1]
+            for old, new in (("0", "D"),):
+                tax_type = tax_type.replace(old, new)
+            price_str = price_str[:-1]
+
     try:
         price = float(price_str)
     except ValueError:
